@@ -40,6 +40,9 @@ int fullSpeed = 0;     // if nonzero, run without delay between frames
 void distribute_bots(int n_bots);
 extern void (*callback_global_setup) (void);
 
+// XXX my extension
+extern void (*callback_initialize) (json_t*);
+
 
 void die(char *s)
 {
@@ -157,6 +160,12 @@ int main(int argc, char *argv[])
 
   // call main() in every bot
   init_all_bots(n_bots);
+
+  // XXX my extension
+  if (callback_initialize) {
+    printf("initializing bots\n");
+    bot_initializer(bot_state_file, allbots);
+  }
   
   // dump_all_bots(n_bots);
 

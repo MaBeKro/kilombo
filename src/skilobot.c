@@ -30,6 +30,9 @@ int tx_period_ticks = 15;  // Message twice a second.
 // Callback function pointer for saving the bot's internal state as JSON.
 json_t* (*callback_json_state) (void) = NULL;
 
+// XXX my extension
+void (*callback_initialize) (json_t*) = NULL;
+
 // Variables used to display communication lines.
 CommLine commLines[MAXCOMMLINES];
 int NcommLines = 0;
@@ -84,7 +87,6 @@ void set_callback_global_setup(void(*fp)(void))
 
 void set_callback_obstacles(int16_t (*fp)(double, double, double *, double *))
 {
-	printf("setting user obstacles callback!\n");
   user_obstacles = fp;
 }
 
@@ -92,7 +94,13 @@ void set_callback_lighting(int16_t (*fp)(double, double))
 {
   user_light = fp;
 }
-  
+
+// XXX my extension
+void set_callback_initialize(void (*fp)(json_t*)) {
+  if (kilo_uid == 1) printf("INIT CALLBACK INIT\n");
+  callback_initialize = fp;
+}
+
 // OBSOLETE callback setting functions - will be removed
 
 void register_user_obstacles(int16_t (*fp)(double, double, double *, double *)){

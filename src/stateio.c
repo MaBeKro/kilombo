@@ -13,6 +13,9 @@
 
 json_t* (*callback_json_state) (void);
 
+//XXX my extension
+extern void (*callback_initialize) (json_t*);
+
 void json_store_double(json_t* root, const char *key, double value)
 {
   json_t* jvalue = json_real(value);
@@ -132,7 +135,18 @@ kilobot* bot_from_json(json_t* bot_rep, int n_bots)
 
   bot->x = extract_double(bot_rep, "x_position");
   bot->y = extract_double(bot_rep, "y_position");
+  
   bot->direction = extract_double(bot_rep, "direction");
+
+  //XXX my extension
+  // printf("bt from json\n");
+  // if (callback_initialize) {
+  //   printf("got the callback for init\n");
+  //   prepare_bot(bot);
+  //   callback_initialize(json_object_get(bot_rep, "state"));
+  // } else {
+  //   printf("did not get the callback for init\n");
+  // }
 
   return bot;
 }
@@ -171,6 +185,44 @@ kilobot** bot_loader(const char *filename, int *n_bots)
   }
 
   return bots;
+}
+
+// XXX my extension
+void bot_initializer(const char *filename, kilobot** allbots) {
+  // copied from above
+  json_error_t error;
+  json_t* root;
+
+  root = json_load_file(filename, 0, &error);
+
+  if (!root) {
+    fprintf(stderr, "Failed to parse %s.\nLine %d: %s\n", filename, error.line,error.text);
+    return NULL;
+  }
+
+  if (!json_is_object(root)) {
+    fprintf(stderr, "error: not an object\n");
+    return NULL;
+  }
+
+  json_t* j_state_array = json_object_get(root, "bot_states");
+
+  if (!json_is_array(j_state_array)) {
+    fprintf(stderr, "error: bot_states is not an array\n");
+    return NULL;
+  }
+
+  n_bots = json_array_size(j_state_array);
+  json_t* bot_state;
+
+  for (int i=0; i<n_bots; i++) {
+    bot_state = json_array_get(j_state_array, i);
+    // modified here
+    prepare_bot(allbots[i]);
+    callback_initialize(json_object_get(bot_state, "state"));
+  }
+  // end copy
+
 }
 
 /* int main(int argc, char *argv[]) */

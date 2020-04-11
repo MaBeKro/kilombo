@@ -8,6 +8,18 @@
 
 // declare variables
 
+typedef struct {
+  uint16_t ID;
+  uint8_t dist;
+  uint16_t gradient;
+  uint8_t N_Neighbors;
+  uint32_t timestamp;
+} Neighbor_t;
+
+typedef struct {
+    message_t msg;
+    distance_measurement_t dist;
+} received_message_t;
 
 typedef struct 
 {
